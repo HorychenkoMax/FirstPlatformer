@@ -1,0 +1,4 @@
+repository "Platform@Horychenko_Maksym@cloud"
+  path "/"
+    br "/main"
+    co "/main"
