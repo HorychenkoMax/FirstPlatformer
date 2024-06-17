@@ -24,6 +24,16 @@ public class PlayerVisual : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+    private void Start()
+    {
+        Player.Instance.IsAttacing += Instance_IsAttacing;
+    }
+
+    private void Instance_IsAttacing(object sender, System.EventArgs e)
+    {
+        animator.SetTrigger(IS_ATTACK);
+    }
+
     private void Update()
     {
         Flip();
@@ -35,10 +45,6 @@ public class PlayerVisual : MonoBehaviour
         animator.SetBool(IS_JUMPING, Player.Instance.IsJumping());
         animator.SetBool(IS_WALKING, Player.Instance.IsWalking());
         animator.SetBool(IS_RUNNING, Player.Instance.IsRunning());
-        if (Player.Instance.IsAttacking())
-        {
-            animator.SetTrigger(IS_ATTACK);
-        }
         if (Player.Instance.IsSimpleAttacking())
         {
             animator.SetTrigger(IS_SIMPLE_ATTACKING);
@@ -109,5 +115,10 @@ public class PlayerVisual : MonoBehaviour
     private void UltimateAttack()
     {
         Player.Instance.UltimateAttack();
+    }
+
+    private void Attack()
+    {
+        Player.Instance.Attack();
     }
 }

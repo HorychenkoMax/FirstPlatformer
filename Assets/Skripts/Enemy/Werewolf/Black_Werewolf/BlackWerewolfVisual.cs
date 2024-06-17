@@ -10,27 +10,42 @@ public class BlackWerewolfVisual : MonoBehaviour
     private const string IS_WALKING = "IsWalking";
     private const string IS_RUNNING = "IsRunning";
     private const string IS_HURT = "IsHurt";
+    private const string IS_DEAD = "IsDead";
+    private const string IS_ATTACK = "Attack";
 
-    private bool isEnd = true;
     private void Awake()
     {
         animator = GetComponent<Animator>();
     }
 
+    private void Start()
+    {
+        body.onTakeHurt += Body_onTakeHurt;
+        body.death += Body_death;
+        body.attack += Body_attack;
+    }
+
+    private void Body_attack(object sender, System.EventArgs e)
+    {
+        animator.SetTrigger(IS_ATTACK);
+    }
+
+    private void Body_death(object sender, System.EventArgs e)
+    {
+        animator.SetBool(IS_DEAD, true);
+    }
+
+    private void Body_onTakeHurt(object sender, System.EventArgs e)
+    {
+        animator.SetTrigger(IS_HURT);
+        //animator.SetBool(IS_WALKING, false);
+        //animator.SetBool(IS_RUNNING, false);
+    }
+
     void Update()
     {
-        if (!body.IsHurt())
-        {
-            
         animator.SetBool(IS_WALKING, body.IsWalking());
-        animator.SetBool(IS_RUNNING, body.IsRunning());
-        }
-        if (body.IsHurt() && isEnd)
-        {
-            isEnd = false;
-            animator.SetTrigger(IS_HURT);
-            //body.SetHurtOut();
-        }
+        animator.SetBool(IS_RUNNING, body.IsRunning());      
     }
 
     private void ChangeToIdleShape()
@@ -47,9 +62,18 @@ public class BlackWerewolfVisual : MonoBehaviour
     {
         body.ChangeToRunningShape();
     }
-    private void SetHurtOut()
+
+    private void IsHurtEnd()
     {
-        body.SetHurtOut();
-        isEnd = true;
+        body.IsHurtEnd();
+    }
+    private void ChangeToAttackShape()
+    {
+        body.ChangeToAttackShape();
+    }
+
+    private void SetIsntAttacking()
+    {
+        body.SetIsntAttacking();
     }
 }

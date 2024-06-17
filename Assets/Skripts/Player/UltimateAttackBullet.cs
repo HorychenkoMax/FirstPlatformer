@@ -41,6 +41,7 @@ public class UltimateAttackBullet : MonoBehaviour
         if(enemy != null)
         {
             enemy.TakeDamage(Player.Instance.GetUltimateAttackDamage());
+            GetComponent<Collider2D>().enabled = false;
         }
 
         Player player = collision.GetComponent<Player>();

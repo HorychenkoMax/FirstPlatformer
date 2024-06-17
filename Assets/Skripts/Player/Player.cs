@@ -31,7 +31,6 @@ public class Player : MonoBehaviour
     [SerializeField] private bool isWalking = false;
     [SerializeField] private bool isJumping = false;
     [SerializeField] private bool isRunning = false;
-    [SerializeField] private bool isAttacking = false;
     [SerializeField] private bool isSimpleAttacking = false;
     [SerializeField] private bool isSimpleAttackingAnimationEnd = true;
     [SerializeField] private bool isUltimateAttacking = false;
@@ -64,8 +63,8 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject bulletForUltimateAttack;
     [SerializeField] private float timeForNextUltimateAttack;
     [SerializeField] private float ultimateAttackCooldown = 5f;
-    
 
+    public event EventHandler IsAttacing;
     private void Awake()
     {
         Instance = this;
@@ -131,9 +130,8 @@ public class Player : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.Mouse0))
                 {
-                    isAttacking = true;
+                    IsAttacing?.Invoke(this, EventArgs.Empty);
                     nextAttackTime = Time.time + 1f / attackRate;
-                    Attack();
                 }
             }
 
@@ -160,7 +158,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Attack()
+    public void Attack()
     {
         Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackCircle.position, attackRange, enemyLayers);
 
@@ -229,7 +227,6 @@ public class Player : MonoBehaviour
     private void EnableAllAnimations()
     {
         isHiten = false;
-        isAttacking = false;
         isSimpleAttacking = false;
         isUltimateAttacking = false;
     }
@@ -316,11 +313,6 @@ public class Player : MonoBehaviour
     public bool IsRunning()
     {
         return isRunning;
-    }
-
-    public bool IsAttacking()
-    {
-        return isAttacking;
     }
 
     public bool IsSimpleAttacking()

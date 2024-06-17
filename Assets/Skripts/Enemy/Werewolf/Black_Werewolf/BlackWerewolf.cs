@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem.Processors;
 
 public class BlackWerewolf : Enemy
 {
@@ -9,7 +11,6 @@ public class BlackWerewolf : Enemy
     private PolygonCollider2D polygonCollider2D;
 
     [Header("Characteristics of enemy")]
-    [SerializeField] private float hitJump = 1f;
     [SerializeField] private float visionRadius = 2f;
 
     [Space]
@@ -20,8 +21,8 @@ public class BlackWerewolf : Enemy
     [Header("Enemy Movement Settings")]
     [SerializeField] private float walkSpeed = 3f;
     [SerializeField] private float runSpeed = 7f;
-    [SerializeField] private float jumpForce = 8f;
-    [SerializeField] private float jumpSpeed = 2f;
+    //[SerializeField] private float jumpForce = 8f;
+    //[SerializeField] private float jumpSpeed = 2f;
     [SerializeField] private float walkingTime = 3f;
     [SerializeField] private float currentWalkingTime;
     private Vector2 targetPosition;
@@ -36,7 +37,28 @@ public class BlackWerewolf : Enemy
     [SerializeField] private bool isFacingRight = true;
     [SerializeField] private bool isPlayerInSight = false;
     [SerializeField] private bool isRunning = false;
-    [SerializeField] private bool isHurt = false;
+    [SerializeField] private bool isDead = false;
+    [SerializeField] private bool isAttacing = false;
+
+    [Space]
+    [Header("Attack setings")]
+    [SerializeField] private Transform simpleAttackCircle;
+    [SerializeField] private float radiusOfSimpleAttack = 0.2f;
+    [SerializeField] private int attackDamage = 10;
+    [SerializeField] private LayerMask enemyLayers;
+    [Space]
+    // [SerializeField] private Transform mainAttackCircle;
+    //[SerializeField] private float radiusOfMainAttack = 1f;
+
+    [SerializeField] private float nextAttack = 1f;
+    [SerializeField] private float currentTimeAtteck;
+    
+
+    private bool isHit = false;
+
+    public event EventHandler onTakeHurt;
+    public event EventHandler death;
+    public event EventHandler attack;
 
     private void Awake()
     {
@@ -54,30 +76,48 @@ public class BlackWerewolf : Enemy
     
     void Update()
     {
-        
-        if (!isHurt) { 
-        //isHurt = false;
-        IsPlayerInSight();
-        if (!isPlayerInSight)
+
+        if (!isHit && !isDead)
         {
-            if (Time.time >= currentWalkingTime)
+            if (Mathf.Abs(Player.Instance.transform.position.x - simpleAttackCircle.transform.position.x) <= 1f)
             {
-                SetTargetPositio();
-                currentWalkingTime = Time.time + walkingTime;
+                isRunning = false;
+                rb.velocity = Vector2.zero;
+                if (Time.time >= currentTimeAtteck)
+                { 
+                    isAttacing = true;
+                    currentTimeAtteck = Time.time + nextAttack;
+                    attack?.Invoke(this, EventArgs.Empty);
+                    Attack();
+                }
             }
-            Walking();
-        }else if (isPlayerInSight)
-        {
-            Running();
-        }
+            else if(!isAttacing)
+            {
+
+            
+            IsPlayerInSight();
+            if (!isPlayerInSight)
+            {
+                if (Time.time >= currentWalkingTime)
+                {
+                    SetTargetPositio();
+                    currentWalkingTime = Time.time + walkingTime;
+                }
+                Walking();
+            }
+            else if (isPlayerInSight)
+            {
+                Running();
+            }
+            }
 
         }
-        //isHurt = false;
+
     }
 
     private void SetTargetPositio()
     {
-        float randomPoint = Random.Range(point.position.x - positionOfPatrol, point.position.x + positionOfPatrol);
+        float randomPoint = UnityEngine.Random.Range(point.position.x - positionOfPatrol, point.position.x + positionOfPatrol);
         targetPosition = new Vector2(randomPoint, transform.position.y);       
     }
 
@@ -118,31 +158,13 @@ public class BlackWerewolf : Enemy
     
     private void IsPlayerInSight()
     {
-        /*
-        float distanceToPlayer = Vector2.Distance(transform.position, Player.Instance.transform.position);
-
-        if(distanceToPlayer <= visionRadius)
-        {
-            Debug.Log("in");
-            isPlayerInSight = true;
-            isRunning = true;
-        } else if(distanceToPlayer > visionRadius)
-        {
-            Debug.Log("out");
-            isPlayerInSight = false;
-            isRunning = false;
-        }
-        */
-
         if (Mathf.Abs(Player.Instance.transform.position.x - transform.position.x) <= visionRadius)
         {
-            Debug.Log("in");
             isPlayerInSight = true;
             isRunning = true;
 
         }else if (Mathf.Abs(Player.Instance.transform.position.x - transform.position.x) > visionRadius)
         {
-            Debug.Log("out");
             isPlayerInSight= false;
             isRunning = false;
         }
@@ -151,16 +173,21 @@ public class BlackWerewolf : Enemy
 
     public override void TakeDamage(int damage)
     {
-        isHurt = true;
         currentHealth -= damage;
+
+        rb.velocity = Vector2.zero;
+        isRunning = false;
+
+        isHit = true;
+
         Vector2 knockbackDirection = (transform.position - Player.Instance.transform.position).normalized;
         Vector2 knockbackForceVector = new Vector2(knockbackDirection.x * knockbackForce, knockbackVerticalForce);
         rb.AddForce(knockbackForceVector, ForceMode2D.Impulse);
-        
+        onTakeHurt?.Invoke(this, EventArgs.Empty);
 
         Debug.Log(currentHealth);
 
-        if (currentHealth < 0)
+        if (currentHealth <= 0)
         {
             Die();
         }
@@ -168,7 +195,37 @@ public class BlackWerewolf : Enemy
 
     protected override void Die()
     {
-        //
+        death?.Invoke(this, EventArgs.Empty);
+        isDead = true;
+        rb.velocity = Vector2.zero;
+        rb.isKinematic = true;
+        GetComponent<Collider2D>().enabled = false;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (simpleAttackCircle == null) return;
+        Gizmos.DrawWireSphere(simpleAttackCircle.position, radiusOfSimpleAttack);
+    }
+
+    public void Attack()
+    {
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(simpleAttackCircle.position, radiusOfSimpleAttack, enemyLayers);
+
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            enemy.GetComponent<Player>().TakeDamage(attackDamage);
+        }
+    }
+
+    public void IsHurtEnd()
+    {
+        isHit = false;
+    }
+
+    public void SetIsntAttacking()
+    {
+        isAttacing = false;
     }
 
     public bool IsWalking()
@@ -179,16 +236,6 @@ public class BlackWerewolf : Enemy
     public bool IsRunning()
     {
         return isRunning;
-    }
-
-    public bool IsHurt()
-    {
-        return isHurt;
-    }
-
-    public void SetHurtOut()
-    {
-        isHurt = false;
     }
 
     public void ChangeToIdleShape()
@@ -243,5 +290,20 @@ public class BlackWerewolf : Enemy
             new Vector2(1.059306f, 0.4514562f)
         };
         polygonCollider2D.SetPath(0, run);
+    }
+
+    public void ChangeToAttackShape()
+    {
+        Vector2[] attack = new Vector2[] {
+            new Vector2(0.2877052f, -0.1828066f),
+            new Vector2(0.3642948f, 0.493615f),
+            new Vector2(0.3552685f, 1.037311f),
+            new Vector2(0.7985688f, 1.226522f),
+            new Vector2(0.5227307f, 1.519367f),
+            new Vector2(-0.0234828f, 1.322091f),
+            new Vector2(-0.5214005f, 0.4602648f),
+            new Vector2(-0.3698759f, -0.1728645f)
+        };
+        polygonCollider2D.SetPath(0, attack);
     }
 }

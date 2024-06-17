@@ -43,6 +43,7 @@ public class SimpleAtteckBullet : MonoBehaviour
         if(enemy != null)
         {
             enemy.TakeDamage(Player.Instance.GetSimpleAttackDamage());
+            GetComponent<Collider2D>().enabled = false;
         }
 
         Player player = collision.GetComponent<Player>();

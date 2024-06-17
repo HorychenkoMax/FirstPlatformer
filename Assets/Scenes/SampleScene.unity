@@ -182,6 +182,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 416740546}
+  - {fileID: 1159271079}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!60 &13817024
@@ -228,18 +229,14 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0.87950015, y: 0.6792324}
-      - {x: 0.37888145, y: 0.78436744}
-      - {x: -0.33620572, y: 0.8784388}
-      - {x: -0.47025377, y: 0.7155776}
-      - {x: -0.9242048, y: -0.16120473}
-      - {x: -0.473454, y: -0.16135573}
-      - {x: -0.19391489, y: 0.5378933}
-      - {x: 0.3213055, y: 0.34742394}
-      - {x: 0.6216377, y: -0.15170956}
-      - {x: 0.8489027, y: -0.149145}
-      - {x: 0.785112, y: 0.46321717}
-      - {x: 1.059306, y: 0.45145625}
+    - - {x: 0.28770518, y: -0.18280655}
+      - {x: 0.36429477, y: 0.49361497}
+      - {x: 0.35526848, y: 1.0373106}
+      - {x: 0.79856884, y: 1.226522}
+      - {x: 0.5227307, y: 1.5193672}
+      - {x: -0.0234828, y: 1.3220915}
+      - {x: -0.52140045, y: 0.46026477}
+      - {x: -0.3698759, y: -0.1728645}
   m_UseDelaunayMesh: 0
 --- !u!114 &13817025
 MonoBehaviour:
@@ -253,16 +250,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e78004667a4163d4587becfc6f3b5b8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 200
+  maxHealth: 100
   currentHealth: 0
-  hitJump: 1
   visionRadius: 5
   positionOfPatrol: 3
   point: {fileID: 204543061}
   walkSpeed: 3
   runSpeed: 5
-  jumpForce: 8
-  jumpSpeed: 2
   walkingTime: 3
   currentWalkingTime: 0
   knockbackForce: 2
@@ -271,7 +265,14 @@ MonoBehaviour:
   isFacingRight: 1
   isPlayerInSight: 0
   isRunning: 0
-  isHurt: 0
+  isDead: 0
+  simpleAttackCircle: {fileID: 1159271079}
+  radiusOfSimpleAttack: 0.2
+  attackDamage: 10
+  enemyLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  radiusOfMainAttack: 1
 --- !u!1001 &33768344
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1145,7 +1146,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -537971696, guid: 4962306507187fa47af9d66bb13efb5d, type: 3}
+  m_Sprite: {fileID: -844384101, guid: fcd9dc145ca45b145aaf65c9f5db62ce, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1508,7 +1509,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.84, y: 0.06, z: -10.053191}
+  m_LocalPosition: {x: 8.18, y: 0.06, z: -10.053191}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1727,7 +1728,7 @@ Transform:
   m_GameObject: {fileID: 556908133}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.84, y: 0.06, z: -10.053191}
+  m_LocalPosition: {x: 8.18, y: 0.06, z: -10.053191}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2214,7 +2215,7 @@ GameObject:
   - component: {fileID: 895262977}
   - component: {fileID: 895262978}
   - component: {fileID: 895262979}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PlayerVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2335,7 +2336,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 923800064}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: FirePointForSimpleAttack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2369,7 +2370,7 @@ GameObject:
   - component: {fileID: 1106278479}
   - component: {fileID: 1106278481}
   - component: {fileID: 1106278482}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2385,7 +2386,7 @@ Transform:
   m_GameObject: {fileID: 1106278477}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.84, y: 0.06, z: -0.053191233}
+  m_LocalPosition: {x: 8.18, y: 0.06, z: -0.053191233}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2452,7 +2453,6 @@ MonoBehaviour:
   isWalking: 0
   isJumping: 0
   isRunning: 0
-  isAttacking: 0
   isSimpleAttacking: 0
   isSimpleAttackingAnimationEnd: 1
   isUltimateAttacking: 0
@@ -2505,6 +2505,37 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!1 &1159271078
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1159271079}
+  m_Layer: 6
+  m_Name: SimpleAttackCircle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1159271079
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1159271078}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.97, y: 1.13, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 13817023}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1207806814
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2935,7 +2966,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1459810045}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: FirePointForUltimateAttack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3371,7 +3402,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1592029168}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AttackCircle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
