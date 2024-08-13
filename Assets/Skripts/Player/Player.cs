@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEditor.Build;
 using UnityEditor.Tilemaps;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -63,6 +64,9 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject bulletForUltimateAttack;
     [SerializeField] private float timeForNextUltimateAttack;
     [SerializeField] private float ultimateAttackCooldown = 5f;
+
+    [Space]
+    [SerializeField] private Image hp;
 
     public event EventHandler IsAttacing;
     private void Awake()
@@ -205,7 +209,7 @@ public class Player : MonoBehaviour
     private void checkGround()
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(new Vector2(transform.position.x, transform.position.y), checkGroundRadius);
-        if(colliders.Length > 1)
+        if(colliders.Length > 2)
         {
             isGround = true;
             isJumping = false;
@@ -237,8 +241,12 @@ public class Player : MonoBehaviour
             currentHealth -= damage;
             rb.AddForce(transform.up * hitJump, ForceMode2D.Impulse);
 
+            hp.fillAmount = (float)currentHealth / (float)maxHealth;
+
             isUltimateAttackAnimationEnd = true;
             isSimpleAttackingAnimationEnd = true;
+
+        Debug.Log(currentHealth);
 
             if (currentHealth <= 0)
             {

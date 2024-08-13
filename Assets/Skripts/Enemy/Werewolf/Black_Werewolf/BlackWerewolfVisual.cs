@@ -38,8 +38,7 @@ public class BlackWerewolfVisual : MonoBehaviour
     private void Body_onTakeHurt(object sender, System.EventArgs e)
     {
         animator.SetTrigger(IS_HURT);
-        //animator.SetBool(IS_WALKING, false);
-        //animator.SetBool(IS_RUNNING, false);
+        SetIsntAttacking();
     }
 
     void Update()
@@ -75,5 +74,15 @@ public class BlackWerewolfVisual : MonoBehaviour
     private void SetIsntAttacking()
     {
         body.SetIsntAttacking();
+    }
+
+    private void SimpleAttack()
+    {
+        body.SimpleAttack();
+    }
+
+    private void MainAttack()
+    {
+        body.MainAttack();
     }
 }

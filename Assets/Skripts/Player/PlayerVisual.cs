@@ -36,7 +36,15 @@ public class PlayerVisual : MonoBehaviour
 
     private void Update()
     {
-        Flip();
+        if (Player.Instance.IsWalking() || Player.Instance.IsRunning() || Player.Instance.IsJumping())
+        {
+            FlipToMove();
+        }
+        else 
+        {
+            FlipToMouse();
+        }
+
         if (Player.Instance.IsDead())
         {
             animator.SetBool(IS_DEAD, Player.Instance.IsDead());
@@ -64,7 +72,7 @@ public class PlayerVisual : MonoBehaviour
        
     }
 
-    private void Flip()
+    private void FlipToMouse()
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -80,8 +88,10 @@ public class PlayerVisual : MonoBehaviour
             FacingRight = true;
             Player.Instance.Flip();
         }
+    }
 
-        /*
+    private void FlipToMove()
+    {
         if (FacingRight && Player.Instance.GetHorizontalMove() < 0f)
         {
             spriteRenderer.flipX = true;
@@ -94,7 +104,6 @@ public class PlayerVisual : MonoBehaviour
             FacingRight = true;
             Player.Instance.Flip();
         }
-        */
     }
 
     private void SimpleAtteck()
